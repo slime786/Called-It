@@ -1,53 +1,39 @@
 # Called it.
 
-A polished front-end MVP for **Called it.** — a network where opinions can be put on record, resolved against reality, and scored.
+**A prediction-driven community for tech, markets, crypto, world affairs and gadgets — put your calls on record, resolve them against reality, and build a public track record.**
 
-## What is included
+Phase 2 turns the original static prototype into a persistent web app using Supabase and GitHub Pages.
 
-- Responsive one-page hub for Markets, Tech, Crypto, World and Gadgets
-- Record-first dashboard with accuracy, rank, best category and open calls
-- Open calls with confidence, settlement conditions, resolution dates and play-point voting
-- 24-hour wording-challenge state
-- Channel filtering and call sorting
-- Season leaderboard and resolving-soon panel
-- Ordinary discussion threads alongside predictions
-- Working “Make a call” and “Start thread” forms (front-end only)
-- Mobile-first responsive layout
-- Zero dependencies: plain HTML, CSS and JavaScript
+## Working now
 
-## Run locally
+- Email/password accounts and public usernames
+- Public profile record shell
+- Persistent calls with claim, category, confidence, resolution date and settlement condition
+- Automatic 24-hour wording-challenge display state
+- Persistent YES/NO positions with play points
+- Persistent ordinary discussion threads
+- Channel filtering for Markets, Tech, Crypto, World and Gadgets
+- Public leaderboard based on current participation activity
+- Responsive mobile/desktop interface
+- Row Level Security so browser users cannot resolve calls or write data as somebody else
 
-Open `index.html` directly, or serve the folder with any static server:
+## Stack
 
-```bash
-python3 -m http.server 8000
-```
+Plain HTML, CSS and JavaScript on GitHub Pages, with Supabase for authentication and PostgreSQL storage. No npm install and no build process are required.
 
-Then visit `http://localhost:8000`.
+## Setup
 
-## Deploy
+Read `SETUP.md` from top to bottom. The only environment-specific file is `config.js`.
 
-This repository can be deployed directly to GitHub Pages, Netlify, Cloudflare Pages or Vercel as a static site. No build command is required.
+## Product principles retained from the concept
 
-For GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / root**.
+- Reputation is tied to what a member put on record, not post count.
+- A call must state the exact condition that settles it.
+- Calls and normal discussion have equal billing.
+- Play money only.
+- Position disclosures are supported for asset-related calls.
+- Resolution authority is not given to ordinary browser clients.
 
-## MVP boundaries
+## Next phase
 
-This version intentionally keeps data in the browser. The next production phase should add:
-
-- authentication and persistent profiles
-- database-backed calls, threads, votes and records
-- machine resolution via market/data APIs
-- challenge flags and moderation workflow
-- season scoring based on difficulty rather than raw hit rate
-- position disclosures and micro-cap restrictions
-- audit trail for settlement source and result
-- notifications and draft squads
-
-## Product principles carried into the UI
-
-1. **Record first** — personal accuracy is visible before content.
-2. **Talk stays talk** — ordinary threads have equal billing with calls.
-3. **One page** — channels filter the hub instead of sending users through a forum tree.
-4. **Credibility over casino energy** — sober surfaces, hairline borders, generous whitespace and restrained semantic color.
-5. **Precise claims** — every call asks for a resolution date and exact settlement condition.
+Machine resolution for market calls, trusted-source resolution, wording flags, comments under calls, difficulty-weighted scoring, quarterly seasons and real accuracy leaderboards.
