@@ -1,39 +1,35 @@
-# Called it.
+# Called it. — Phase 3
 
-**A prediction-driven community for tech, markets, crypto, world affairs and gadgets — put your calls on record, resolve them against reality, and build a public track record.**
+Called it. is a prediction-driven community for markets, tech, crypto, world affairs and gadgets. Members put claims on record with confidence, a resolution date and an exact settlement condition; public profiles then accumulate permanent results.
 
-Phase 2 turns the original static prototype into a persistent web app using Supabase and GitHub Pages.
+## Phase 3 includes
 
-## Working now
+- Persistent Supabase accounts, calls, threads and positions from Phase 2
+- Clickable call records with shareable `#call-ID` URLs
+- Discussion/comments under every call
+- Clickable public profiles with overall and category accuracy
+- Difficulty-adjusted score alongside raw accuracy
+- Leaderboard based on resolved-call score
+- 24-hour wording challenge that automatically becomes open
+- Ambiguity flags during challenge
+- Resolution metadata: machine, named source or jury
+- Admin-only permanent YES / NO / VOID settlement
+- Resolution note and source URL on the permanent call record
+- Mobile-responsive single-hub layout
 
-- Email/password accounts and public usernames
-- Public profile record shell
-- Persistent calls with claim, category, confidence, resolution date and settlement condition
-- Automatic 24-hour wording-challenge display state
-- Persistent YES/NO positions with play points
-- Persistent ordinary discussion threads
-- Channel filtering for Markets, Tech, Crypto, World and Gadgets
-- Public leaderboard based on current participation activity
-- Responsive mobile/desktop interface
-- Row Level Security so browser users cannot resolve calls or write data as somebody else
+## Scoring in this build
 
-## Stack
+For an author's resolved call:
+- Correct: `+(100 - confidence)`
+- Wrong: `-confidence`
+- Void: `0`
 
-Plain HTML, CSS and JavaScript on GitHub Pages, with Supabase for authentication and PostgreSQL storage. No npm install and no build process are required.
+This makes an obvious 99% call worth almost nothing when correct, while a wrong 99% call is heavily punished. Accuracy remains separately visible.
 
 ## Setup
 
-Read `SETUP.md` from top to bottom. The only environment-specific file is `config.js`.
+Read `SETUP-PHASE3.md`. Existing Phase 2 data is preserved.
 
-## Product principles retained from the concept
+## Important
 
-- Reputation is tied to what a member put on record, not post count.
-- A call must state the exact condition that settles it.
-- Calls and normal discussion have equal billing.
-- Play money only.
-- Position disclosures are supported for asset-related calls.
-- Resolution authority is not given to ordinary browser clients.
-
-## Next phase
-
-Machine resolution for market calls, trusted-source resolution, wording flags, comments under calls, difficulty-weighted scoring, quarterly seasons and real accuracy leaderboards.
+This is still a development MVP. "Machine" resolution is represented in the data model and UI, but an external price/data provider and scheduled server-side resolver are not included yet. Until that is connected, an admin settles calls using the resolution controls.

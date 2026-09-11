@@ -10,9 +10,9 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#top">Called it<span>.</span></a>
+    <a class="brand" href="#">Called it<span>.</span></a>
     <nav class="top-actions" aria-label="Account">
-      <span id="connectionBadge" class="connection-badge">Setup mode</span>
+      <span id="connectionBadge" class="connection-badge">Connecting…</span>
       <button class="ghost-button" id="authBtn">Sign in</button>
       <button class="avatar hidden" id="profileBtn" aria-label="Profile">?</button>
     </nav>
@@ -33,122 +33,50 @@
 
     <section class="stats-grid" aria-label="Your performance">
       <article class="stat-card"><span>Accuracy</span><strong id="accuracyStat">—</strong><small id="accuracyDetail">No resolved calls yet</small></article>
+      <article class="stat-card"><span>Score</span><strong id="scoreStat">0</strong><small>Difficulty adjusted</small></article>
       <article class="stat-card"><span>Resolved</span><strong id="resolvedStat">0</strong><small>Permanent record</small></article>
-      <article class="stat-card"><span>Open calls</span><strong id="openStat">0</strong><small id="challengeDetail">0 in wording challenge</small></article>
-      <article class="stat-card"><span>Play points staked</span><strong id="pointsStat">0</strong><small>For status only — not money</small></article>
+      <article class="stat-card"><span>Live calls</span><strong id="openStat">0</strong><small id="challengeDetail">0 in wording challenge</small></article>
     </section>
 
-    <div class="channel-strip-wrap">
-      <nav class="channel-strip" id="channelNav" aria-label="Channels">
-        <button class="channel active" data-channel="Hub">Hub</button>
-        <button class="channel" data-channel="Markets">Markets</button>
-        <button class="channel" data-channel="Tech">Tech</button>
-        <button class="channel" data-channel="Crypto">Crypto</button>
-        <button class="channel" data-channel="World">World</button>
-        <button class="channel" data-channel="Gadgets">Gadgets</button>
-      </nav>
-    </div>
+    <div class="channel-strip-wrap"><nav class="channel-strip" id="channelNav" aria-label="Channels"></nav></div>
 
     <div class="content-grid">
       <aside class="left-rail">
-        <section class="panel sticky-panel">
-          <p class="eyebrow">Channels</p>
-          <div class="rail-channels" id="railChannels"></div>
-        </section>
-        <section class="panel principles-panel">
-          <p class="eyebrow">The rule</p>
-          <h2>Say exactly what would make you wrong.</h2>
-          <p>Vague calls are bad calls. Settlement conditions are written before anyone takes a side.</p>
-        </section>
+        <section class="panel sticky-panel"><p class="eyebrow">Channels</p><div class="rail-channels" id="railChannels"></div></section>
+        <section class="panel principles-panel"><p class="eyebrow">The rule</p><h2>Say exactly what would make you wrong.</h2><p>Vague calls are bad calls. Settlement conditions are written before anyone takes a side.</p></section>
       </aside>
 
       <section class="main-column">
-        <div class="section-heading">
-          <div><p class="eyebrow">Open calls</p><h2>Put it on record</h2></div>
-          <label class="sort-wrap">Sort
-            <select id="sortCalls"><option value="hot">Hot</option><option value="new">Newest</option><option value="soon">Resolving soon</option><option value="confidence">Confidence</option></select>
-          </label>
-        </div>
+        <div class="section-heading"><div><p class="eyebrow">Calls</p><h2>Put it on record</h2></div><label class="sort-wrap">Sort <select id="sortCalls"><option value="hot">Hot</option><option value="new">Newest</option><option value="soon">Resolving soon</option><option value="confidence">Confidence</option></select></label></div>
         <div id="callsList" class="stack"></div>
-
-        <div class="section-heading talk-heading">
-          <div><p class="eyebrow">Talk</p><h2>Ordinary conversation</h2></div>
-        </div>
+        <div class="section-heading talk-heading"><div><p class="eyebrow">Talk</p><h2>Ordinary conversation</h2></div></div>
         <div id="threadsList" class="thread-list"></div>
       </section>
 
       <aside class="right-rail">
-        <section class="panel">
-          <div class="panel-heading"><div><p class="eyebrow">Season</p><h2>Leaderboard</h2></div></div>
-          <div id="leaderboard" class="leaderboard"></div>
-        </section>
-        <section class="panel">
-          <div class="panel-heading"><div><p class="eyebrow">Resolving</p><h2>Next up</h2></div></div>
-          <div id="resolvingList" class="resolving-list"></div>
-        </section>
-        <section class="panel disclosure-panel">
-          <p class="eyebrow">Important</p>
-          <p>Play points only. Nothing posted on Called it. is financial advice. Calls naming assets should disclose relevant positions.</p>
-        </section>
+        <section class="panel"><div class="panel-heading"><div><p class="eyebrow">Season</p><h2>Leaderboard</h2></div></div><div id="leaderboard" class="leaderboard"></div></section>
+        <section class="panel"><div class="panel-heading"><div><p class="eyebrow">Resolving</p><h2>Next up</h2></div></div><div id="resolvingList" class="resolving-list"></div></section>
+        <section class="panel disclosure-panel"><p class="eyebrow">Scoring</p><p>Correct calls earn more when confidence was lower. Wrong high-confidence calls lose more. Raw hit rate stays visible too.</p></section>
+        <section class="panel disclosure-panel"><p class="eyebrow">Important</p><p>Play points only. Nothing posted on Called it. is financial advice. Calls naming assets should disclose relevant positions.</p></section>
       </aside>
     </div>
   </main>
 
-  <dialog id="authModal" class="modal">
-    <form class="modal-card" id="authForm">
-      <div class="modal-header"><div><p class="eyebrow">Account</p><h2 id="authTitle">Sign in</h2></div><button type="button" class="icon-button close" data-close="authModal">×</button></div>
-      <div class="auth-tabs"><button type="button" class="auth-tab active" data-auth-mode="signin">Sign in</button><button type="button" class="auth-tab" data-auth-mode="signup">Create account</button></div>
-      <label id="usernameLabel" class="hidden">Username<input id="usernameInput" autocomplete="username" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="marketowl" /></label>
-      <label>Email<input id="emailInput" type="email" autocomplete="email" required placeholder="you@example.com" /></label>
-      <label>Password<input id="passwordInput" type="password" autocomplete="current-password" minlength="8" required placeholder="8+ characters" /></label>
-      <p class="form-note" id="authNote">Sign in to publish calls, take positions and build your record.</p>
-      <button class="primary-button full" id="authSubmitBtn" type="submit">Sign in</button>
-    </form>
-  </dialog>
+  <dialog id="authModal" class="modal"><form class="modal-card" id="authForm"><div class="modal-header"><div><p class="eyebrow">Account</p><h2 id="authTitle">Sign in</h2></div><button type="button" class="icon-button close" data-close="authModal">×</button></div><div class="auth-tabs"><button type="button" class="auth-tab active" data-auth-mode="signin">Sign in</button><button type="button" class="auth-tab" data-auth-mode="signup">Create account</button></div><label id="usernameLabel" class="hidden">Username<input id="usernameInput" autocomplete="username" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="marketowl" /></label><label>Email<input id="emailInput" type="email" autocomplete="email" required placeholder="you@example.com" /></label><label>Password<input id="passwordInput" type="password" autocomplete="current-password" minlength="8" required placeholder="8+ characters" /></label><p class="form-note" id="authNote">Sign in to publish calls, take positions and build your record.</p><button class="primary-button full" id="authSubmitBtn" type="submit">Sign in</button></form></dialog>
 
-  <dialog id="callModal" class="modal">
-    <form class="modal-card" id="callForm">
-      <div class="modal-header"><div><p class="eyebrow">New call</p><h2>Put your name on it.</h2></div><button type="button" class="icon-button close" data-close="callModal">×</button></div>
-      <label>Claim<textarea id="claimInput" maxlength="180" required placeholder="Nvidia closes above $210 before earnings"></textarea></label>
-      <div class="form-grid">
-        <label>Channel<select id="channelInput" required><option>Markets</option><option>Tech</option><option>Crypto</option><option>World</option><option>Gadgets</option></select></label>
-        <label>Resolution date<input id="dateInput" type="date" required /></label>
-      </div>
-      <label>Exact settlement condition<textarea id="conditionInput" maxlength="260" required placeholder="Settles YES if the named source shows... otherwise NO."></textarea></label>
-      <label>Confidence <strong id="confidenceValue">70%</strong><input id="confidenceInput" type="range" min="50" max="99" value="70" /></label>
-      <label>Position disclosure <span class="optional">recommended for tickers/assets</span><input id="disclosureInput" maxlength="140" placeholder="e.g. Long NVDA shares" /></label>
-      <p class="form-note">New calls spend 24 hours in wording challenge before opening. You can tighten wording later; the resolution terms should not change once open.</p>
-      <button class="primary-button full" type="submit">Publish call</button>
-    </form>
-  </dialog>
+  <dialog id="callModal" class="modal"><form class="modal-card" id="callForm"><div class="modal-header"><div><p class="eyebrow">New call</p><h2>Put your name on it.</h2></div><button type="button" class="icon-button close" data-close="callModal">×</button></div><label>Claim<textarea id="claimInput" minlength="10" maxlength="180" required placeholder="Nvidia closes above $210 before earnings"></textarea></label><div class="form-grid"><label>Channel<select id="channelInput" required></select></label><label>Resolution date<input id="dateInput" type="date" required /></label></div><label>Exact settlement condition<textarea id="conditionInput" minlength="15" maxlength="260" required placeholder="Settles YES if the named source shows... otherwise NO."></textarea></label><div class="form-grid"><label>Resolution method<select id="resolutionMethodInput"><option value="machine">Machine / data API</option><option value="source">Named source</option><option value="jury">Jury</option></select></label><label>Named source<input id="sourceNameInput" maxlength="120" placeholder="e.g. Nasdaq official close" /></label></div><label>Confidence <strong id="confidenceValue">70%</strong><input id="confidenceInput" type="range" min="50" max="99" value="70" /></label><label>Position disclosure <span class="optional">recommended for tickers/assets</span><input id="disclosureInput" maxlength="140" placeholder="e.g. Long NVDA shares" /></label><p class="form-note">New calls spend 24 hours in wording challenge before opening. Resolution terms become part of the permanent record.</p><button class="primary-button full" type="submit">Publish call</button></form></dialog>
 
-  <dialog id="threadModal" class="modal">
-    <form class="modal-card" id="threadForm">
-      <div class="modal-header"><div><p class="eyebrow">New thread</p><h2>Keep talk as talk.</h2></div><button type="button" class="icon-button close" data-close="threadModal">×</button></div>
-      <label>Title<input id="threadTitleInput" maxlength="120" required placeholder="What does the new export rule actually change?" /></label>
-      <label>Channel<select id="threadChannelInput"><option>Markets</option><option>Tech</option><option>Crypto</option><option>World</option><option>Gadgets</option></select></label>
-      <label>Post<textarea id="threadBodyInput" maxlength="1800" required placeholder="Start the discussion..."></textarea></label>
-      <button class="primary-button full" type="submit">Post thread</button>
-    </form>
-  </dialog>
+  <dialog id="threadModal" class="modal"><form class="modal-card" id="threadForm"><div class="modal-header"><div><p class="eyebrow">New thread</p><h2>Keep talk as talk.</h2></div><button type="button" class="icon-button close" data-close="threadModal">×</button></div><label>Title<input id="threadTitleInput" minlength="4" maxlength="120" required /></label><label>Channel<select id="threadChannelInput"></select></label><label>Post<textarea id="threadBodyInput" maxlength="1800" required></textarea></label><button class="primary-button full" type="submit">Post thread</button></form></dialog>
 
-  <dialog id="positionModal" class="modal">
-    <form class="modal-card compact" id="positionForm">
-      <div class="modal-header"><div><p class="eyebrow">Take a side</p><h2 id="positionTitle">YES</h2></div><button type="button" class="icon-button close" data-close="positionModal">×</button></div>
-      <p class="form-note" id="positionClaim"></p>
-      <label>Play points<input id="pointsInput" type="number" min="1" max="100" value="10" required /></label>
-      <p class="form-note">Play money only. Your position is public and can be changed while the call is open.</p>
-      <button class="primary-button full" type="submit">Record position</button>
-    </form>
-  </dialog>
+  <dialog id="positionModal" class="modal"><form class="modal-card compact" id="positionForm"><div class="modal-header"><div><p class="eyebrow">Take a side</p><h2 id="positionTitle">YES</h2></div><button type="button" class="icon-button close" data-close="positionModal">×</button></div><p class="form-note" id="positionClaim"></p><label>Play points<input id="pointsInput" type="number" min="1" max="100" value="10" required /></label><p class="form-note">Play money only. Your position is public and can be changed while the call is open.</p><button class="primary-button full" type="submit">Record position</button></form></dialog>
 
-  <dialog id="profileModal" class="modal">
-    <div class="modal-card compact">
-      <div class="modal-header"><div><p class="eyebrow">Profile</p><h2 id="profileUsername">—</h2></div><button type="button" class="icon-button close" data-close="profileModal">×</button></div>
-      <div class="profile-record"><strong id="profileAccuracy">—</strong><span>accuracy</span><strong id="profileResolved">0</strong><span>resolved calls</span></div>
-      <button class="secondary-button full" id="signOutBtn">Sign out</button>
-    </div>
-  </dialog>
+  <dialog id="callDetailModal" class="modal wide"><div class="modal-card"><div class="modal-header"><div><p class="eyebrow">Call record</p><h2 id="detailClaim">—</h2></div><button type="button" class="icon-button close" data-close="callDetailModal">×</button></div><div id="detailMeta" class="detail-meta"></div><div id="detailCondition" class="detail-condition"></div><div id="detailResolution" class="resolution-box hidden"></div><div id="detailActions" class="detail-actions"></div><div class="divider"></div><div class="section-heading"><div><p class="eyebrow">Discussion</p><h2>Under the call</h2></div><button class="secondary-button small" id="shareCallBtn">Copy link</button></div><div id="commentsList" class="comments-list"></div><form id="commentForm" class="comment-form"><textarea id="commentInput" maxlength="1200" placeholder="Add to the discussion…"></textarea><button class="primary-button" type="submit">Post</button></form><button id="flagCallBtn" class="text-button">Flag ambiguous wording</button><button id="adminResolveBtn" class="danger-button hidden">Resolve / void call</button></div></dialog>
+
+  <dialog id="flagModal" class="modal"><form class="modal-card compact" id="flagForm"><div class="modal-header"><div><p class="eyebrow">Wording challenge</p><h2>What is ambiguous?</h2></div><button type="button" class="icon-button close" data-close="flagModal">×</button></div><label>Reason<textarea id="flagReason" minlength="3" maxlength="240" required></textarea></label><button class="primary-button full" type="submit">Submit flag</button></form></dialog>
+
+  <dialog id="resolveModal" class="modal"><form class="modal-card compact" id="resolveForm"><div class="modal-header"><div><p class="eyebrow">Admin resolution</p><h2>Settle the call</h2></div><button type="button" class="icon-button close" data-close="resolveModal">×</button></div><label>Outcome<select id="resolveOutcome"><option value="YES">YES — claim occurred</option><option value="NO">NO — claim did not occur</option><option value="VOID">VOID</option></select></label><label>Resolution note<textarea id="resolveNote" minlength="3" maxlength="500" required></textarea></label><label>Source URL<input id="resolveSourceUrl" type="url" maxlength="500" placeholder="https://…" /></label><button class="danger-button full" type="submit">Record permanent result</button></form></dialog>
+
+  <dialog id="profileModal" class="modal"><div class="modal-card profile-card"><div class="modal-header"><div><p class="eyebrow">Public record</p><h2 id="profileUsername">—</h2></div><button type="button" class="icon-button close" data-close="profileModal">×</button></div><div class="profile-record"><div><strong id="profileAccuracy">—</strong><span>accuracy</span></div><div><strong id="profileScore">0</strong><span>score</span></div><div><strong id="profileResolved">0</strong><span>resolved</span></div><div><strong id="profileOpen">0</strong><span>live</span></div></div><div id="profileBreakdown" class="profile-breakdown"></div><div id="profileCalls" class="mini-list"></div><button class="secondary-button full hidden" id="signOutBtn">Sign out</button></div></dialog>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./app.js"></script>
