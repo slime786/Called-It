@@ -26,7 +26,26 @@ function renderRail(){ $('#railChannels').innerHTML=['Hub',...CHANNELS].map(c=>`
 async function boot(){populateChannels();if(!configured){$('#connectionBadge').textContent='Setup required';toast('Run Phase 3 setup first.');return}$('#connectionBadge').textContent='Live database';$('#connectionBadge').classList.add('live');await supabase.rpc('open_due_calls').catch(()=>{});const {data:{session}}=await supabase.auth.getSession();currentUser=session?.user||null;await loadProfile();await loadData();await checkAdmin();supabase.auth.onAuthStateChange(async(_e,s)=>{currentUser=s?.user||null;await loadProfile();await checkAdmin();await loadData()});handleHash()}
 async function loadProfile(){currentProfile=null;if(currentUser){const {data}=await supabase.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();currentProfile=data||null}updateAccountUI()}
 async function checkAdmin(){isAdmin=false;if(currentUser){const {data}=await supabase.rpc('is_admin');isAdmin=Boolean(data)}if($('#adminResolveBtn'))$('#adminResolveBtn').classList.toggle('hidden',!isAdmin)}
-async function loadData(){const [cr,tr,pr]=await Promise.all([supabase.from('calls').select('*, profiles!calls_author_id_fkey(username), positions(points,side,user_id)').order('created_at',{ascending:false}).limit(150),supabase.from('threads').select('*, profiles!threads_author_id_fkey(username)').order('created_at',{ascending:false}).limit(80),currentUser?supabase.from('positions').select('*').eq('user_id',currentUser.id):Promise.resolve({data:[]})]);if(cr.error)toast(cr.error.message);calls=cr.data||[];threads=tr.data||[];myPositions=pr.data||[];renderAll()}
+async function loadData(){
+  const [cr,tr,allProfiles,allPositions,myPr]=await Promise.all([
+    supabase.from('calls').select('*').order('created_at',{ascending:false}).limit(150),
+    supabase.from('threads').select('*').order('created_at',{ascending:false}).limit(80),
+    supabase.from('profiles').select('id,username'),
+    supabase.from('positions').select('call_id,user_id,points,side'),
+    currentUser?supabase.from('positions').select('*').eq('user_id',currentUser.id):Promise.resolve({data:[],error:null})
+  ]);
+  const firstError=[cr,tr,allProfiles,allPositions,myPr].find(x=>x?.error)?.error;
+  if(firstError)toast(firstError.message);
+  const profileMap=new Map((allProfiles.data||[]).map(p=>[String(p.id),p]));
+  const positionsByCall=new Map();
+  for(const p of (allPositions.data||[])){
+    const k=String(p.call_id); if(!positionsByCall.has(k))positionsByCall.set(k,[]); positionsByCall.get(k).push(p);
+  }
+  calls=(cr.data||[]).map(c=>({...c,profiles:profileMap.get(String(c.author_id))||null,positions:positionsByCall.get(String(c.id))||[]}));
+  threads=(tr.data||[]).map(t=>({...t,profiles:profileMap.get(String(t.author_id))||null}));
+  myPositions=myPr.data||[];
+  renderAll();
+}
 function updateAccountUI(){const on=!!currentUser;$('#authBtn').classList.toggle('hidden',on);$('#profileBtn').classList.toggle('hidden',!on);if(on)$('#profileBtn').textContent=(currentProfile?.username||currentUser.email||'?').slice(0,2).toUpperCase()}
 function renderAll(){renderRail();renderCalls();renderThreads();renderStats();renderLeaderboard();renderResolving();$$('[data-channel]').forEach(b=>b.classList.toggle('active',b.dataset.channel===activeChannel))}
 function filtered(list){return activeChannel==='Hub'?list:list.filter(x=>x.channel===activeChannel)}
@@ -39,7 +58,15 @@ function renderResolving(){const list=calls.filter(c=>['challenge','open'].inclu
 function setChannel(c){activeChannel=c;renderAll()}
 
 async function openCall(id,push=true){selectedCall=calls.find(c=>String(c.id)===String(id));if(!selectedCall)return;$('#detailClaim').textContent=selectedCall.claim;const st=statusOf(selectedCall);$('#detailMeta').innerHTML=`<span class="badge">${selectedCall.channel}</span><span class="badge ${st}">${st}</span><span>${selectedCall.confidence}% confidence</span><span>by <b class="author-link" data-profile="${esc(nameOf(selectedCall))}">${esc(nameOf(selectedCall))}</b></span><span>resolves ${fmtDate(selectedCall.resolution_date)}</span><span>${esc(selectedCall.resolution_method||'source')} resolution</span>${selectedCall.source_name?`<span>source: ${esc(selectedCall.source_name)}</span>`:''}`;$('#detailCondition').textContent=selectedCall.settlement_condition;const rb=$('#detailResolution');if(selectedCall.status==='resolved'||selectedCall.status==='void'){rb.className=`resolution-box ${selectedCall.status==='resolved'?(selectedCall.result?'correct':'wrong'):''}`;rb.innerHTML=`<strong>${selectedCall.status==='void'?'VOID':selectedCall.result?'YES — correct':'NO — wrong'}</strong><p>${esc(selectedCall.resolution_note||'Result recorded.')}</p>${selectedCall.resolution_source_url?`<a href="${esc(selectedCall.resolution_source_url)}" target="_blank" rel="noopener">Resolution source ↗</a>`:''}`}else rb.className='resolution-box hidden';const mine=myPositions.find(p=>String(p.call_id)===String(selectedCall.id));$('#detailActions').innerHTML=st==='open'?`<button class="side-button yes ${mine?.side==='YES'?'selected':''}" data-side="YES" data-call="${selectedCall.id}">YES</button><button class="side-button no ${mine?.side==='NO'?'selected':''}" data-side="NO" data-call="${selectedCall.id}">NO</button><span class="form-note">${pts(selectedCall)} play points staked.</span>`:`<span class="form-note">${st==='challenge'?'Wording is still being challenged.':st==='resolved'?'This call is permanently resolved.':'This call is closed.'}</span>`;$('#flagCallBtn').classList.toggle('hidden',st!=='challenge');$('#adminResolveBtn').classList.toggle('hidden',!isAdmin||!['open','challenge'].includes(st));await loadComments(id);openModal('callDetailModal');if(push)history.replaceState(null,'',`#call-${id}`)}
-async function loadComments(id){const {data,error}=await supabase.from('call_comments').select('*, profiles!call_comments_author_id_fkey(username)').eq('call_id',id).order('created_at',{ascending:true});if(error){$('#commentsList').innerHTML='<p class="form-note">Run phase3-migration.sql to enable call discussion.</p>';return}comments=data||[];$('#commentsList').innerHTML=comments.length?comments.map(c=>`<div class="comment"><div class="comment-head"><span class="author-link" data-profile="${esc(c.profiles?.username||'member')}">${esc(c.profiles?.username||'member')}</span><span>${ago(c.created_at)}</span></div><div class="comment-body">${esc(c.body)}</div></div>`).join(''):'<p class="form-note">No comments yet. Start the discussion.</p>'}
+async function loadComments(id){
+  const {data,error}=await supabase.from('call_comments').select('*').eq('call_id',id).order('created_at',{ascending:true});
+  if(error){$('#commentsList').innerHTML='<p class="form-note">Could not load discussion: '+esc(error.message)+'</p>';return}
+  const authorIds=[...new Set((data||[]).map(c=>c.author_id).filter(Boolean))];
+  let profileMap=new Map();
+  if(authorIds.length){const {data:pdata}=await supabase.from('profiles').select('id,username').in('id',authorIds);profileMap=new Map((pdata||[]).map(p=>[String(p.id),p]));}
+  comments=(data||[]).map(c=>({...c,profiles:profileMap.get(String(c.author_id))||null}));
+  $('#commentsList').innerHTML=comments.length?comments.map(c=>`<div class="comment"><div class="comment-head"><span class="author-link" data-profile="${esc(c.profiles?.username||'member')}">${esc(c.profiles?.username||'member')}</span><span>${ago(c.created_at)}</span></div><div class="comment-body">${esc(c.body)}</div></div>`).join(''):'<p class="form-note">No comments yet. Start the discussion.</p>'
+}
 function openProfile(username,push=true){const s=userStats(username);$('#profileUsername').textContent=username;$('#profileAccuracy').textContent=s.accuracy===null?'—':`${s.accuracy}%`;$('#profileScore').textContent=s.score>=0?`+${s.score}`:s.score;$('#profileResolved').textContent=s.resolved;$('#profileOpen').textContent=s.live;$('#profileBreakdown').innerHTML=CHANNELS.map(ch=>{const r=s.own.filter(c=>c.channel===ch&&c.status==='resolved'),a=r.length?Math.round(r.filter(c=>c.result).length/r.length*100):null;return `<div class="breakdown-row"><span>${ch}</span><strong>${a===null?'—':a+'%'}</strong></div>`}).join('');$('#profileCalls').innerHTML=s.own.slice(0,8).map(c=>`<div class="mini-call" data-open-call="${c.id}"><strong>${esc(c.claim)}</strong><div class="thread-meta">${c.channel} · ${statusOf(c)}${c.status==='resolved'?` · ${scoreCall(c)>=0?'+':''}${scoreCall(c)} score`:''}</div></div>`).join('')||'<p class="form-note">No calls yet.</p>';$('#signOutBtn').classList.toggle('hidden',username!==(currentProfile?.username));openModal('profileModal');if(push)history.replaceState(null,'',`#profile-${encodeURIComponent(username)}`)}
 function handleHash(){const h=location.hash;if(h.startsWith('#call-'))openCall(h.slice(6),false);else if(h.startsWith('#profile-'))openProfile(decodeURIComponent(h.slice(9)),false)}
 
