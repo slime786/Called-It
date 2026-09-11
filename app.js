@@ -4,6 +4,9 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 const CHANNELS = ['Markets','Tech','Crypto','World','Gadgets'];
 const configured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// Always return email confirmations to the folder this app is actually hosted in.
+// On GitHub Pages this resolves to https://slime786.github.io/Called-It/.
+const AUTH_REDIRECT_URL = new URL('./', window.location.href).href.split('#')[0].split('?')[0];
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 let currentUser = null;
@@ -125,7 +128,7 @@ function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,m=>({'&':'&amp;','
 $('#authBtn').addEventListener('click',()=>openModal('authModal'));$('#profileBtn').addEventListener('click',()=>openModal('profileModal'));
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.close).close()));
 $$('.auth-tab').forEach(b=>b.addEventListener('click',()=>{authMode=b.dataset.authMode;$$('.auth-tab').forEach(x=>x.classList.toggle('active',x===b));const signup=authMode==='signup';$('#usernameLabel').classList.toggle('hidden',!signup);$('#usernameInput').required=signup;$('#authTitle').textContent=signup?'Create account':'Sign in';$('#authSubmitBtn').textContent=signup?'Create account':'Sign in';$('#passwordInput').autocomplete=signup?'new-password':'current-password'}));
-$('#authForm').addEventListener('submit',async e=>{e.preventDefault();if(!configured)return toast('Configure Supabase first.');const email=$('#emailInput').value.trim();const password=$('#passwordInput').value;if(authMode==='signup'){const username=$('#usernameInput').value.trim();const {error}=await supabase.auth.signUp({email,password,options:{data:{username}}});if(error)return toast(error.message);toast('Account created. Check your email if confirmation is enabled.')}else{const {error}=await supabase.auth.signInWithPassword({email,password});if(error)return toast(error.message);toast('Signed in.')}$('#authModal').close()});
+$('#authForm').addEventListener('submit',async e=>{e.preventDefault();if(!configured)return toast('Configure Supabase first.');const email=$('#emailInput').value.trim();const password=$('#passwordInput').value;if(authMode==='signup'){const username=$('#usernameInput').value.trim();const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:AUTH_REDIRECT_URL,data:{username}}});if(error)return toast(error.message);toast('Account created. Check your email if confirmation is enabled.')}else{const {error}=await supabase.auth.signInWithPassword({email,password});if(error)return toast(error.message);toast('Signed in.')}$('#authModal').close()});
 $('#signOutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();$('#profileModal').close();toast('Signed out.')});
 
 $('#newCallBtn').addEventListener('click',()=>{if(!requireAccount())return;const d=new Date();d.setDate(d.getDate()+1);$('#dateInput').min=d.toISOString().slice(0,10);$('#dateInput').value=d.toISOString().slice(0,10);openModal('callModal')});
